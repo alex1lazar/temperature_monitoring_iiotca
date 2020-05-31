@@ -1,3 +1,4 @@
+import csv
 import json
 import random
 import time
@@ -17,27 +18,40 @@ def read_temperature():
     return temperature
 
 
-def insert_firebase(event):
+def insert_to_firebase(event):
     time = time_milli()
     data = json.dumps({
         'time': time,
         'event': event
     })
-    # firebase.child("events").push(data)
     firebase.post('/events', data)
     print('posted event to fb')
+
+
+def insert_to_db(temperature, fever_continue, fever_count):
+    time = time_milli()
+    event = '-'
+
+    if temperature >= FEVER_START and not fever_continue:
+        event = "FEVER_START_EVENT"
+    elif fever_continue and fever_count == FEVER_LIMIT:
+        event = "FEVER_END_EVENT"
+
+    with open('db.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([time, temperature, event])
 
 
 def handle_fever(temperature, fever_continue, fever_count):
     if temperature >= FEVER_START and not fever_continue:
         print("FEVER_START_EVENT")
-        insert_firebase("FEVER_START_EVENT")
+        insert_to_firebase("FEVER_START_EVENT")
         fever_continue = True
         nonfever_count = 0
         return
 
     if fever_continue and nonfever_count == FEVER_LIMIT:
-        insert_firebase("FEVER_END_EVENT")
+        insert_to_firebase("FEVER_END_EVENT")
         print("FEVER_END_EVENT")
         fever_continue = False
         nonfever_count = 0
