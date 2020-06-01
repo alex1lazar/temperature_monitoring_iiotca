@@ -25,7 +25,7 @@ def insert_to_firebase(event):
         'event': event
     })
     firebase.post('/events', data)
-    print('posted event to fb')
+    print('posted event to fb {}'.format(data))
 
 
 def insert_to_db(temperature, event):
@@ -37,9 +37,9 @@ def insert_to_db(temperature, event):
 
 
 def handle_fever(temperature, fever_continue, nonfever_count):
-    event = "NONE"
+    event = "NO event"
+    # temp bigger than 38 and fever_continue is false?
     if temperature >= FEVER_START and not fever_continue:
-        print("FEVER_START_EVENT")
         event = "FEVER_START_EVENT"
         insert_to_firebase(event)
         insert_to_db(temperature, event)
@@ -47,24 +47,23 @@ def handle_fever(temperature, fever_continue, nonfever_count):
         nonfever_count = 0
         return
 
-    if fever_continue and nonfever_count == FEVER_LIMIT:
+    # fever_continue is true and nonfever reached max of 10 times
+    elif fever_continue and nonfever_count == FEVER_LIMIT:
         event = "FEVER_END_EVENT"
         insert_to_firebase(event)
         insert_to_db(temperature, event)
-        print("FEVER_END_EVENT")
         fever_continue = False
         nonfever_count = 0
-        insert_to_db(temperature, event)
         return
 
-    if fever_continue and temperature < FEVER_START:
+    elif fever_continue and temperature < FEVER_START:
         insert_to_db(temperature, event)
         nonfever_count += 1
-        print("increased nonfever count: " + nonfever_count)
-    if fever_continue and temperature > FEVER_START:
-        print("reset nonfever count")
+    elif fever_continue and temperature > FEVER_START:
         insert_to_db(temperature, event)
         nonfever_count = 0
+    else:
+        insert_to_db(temperature, event)
 
 
 def monitor_temperature():
