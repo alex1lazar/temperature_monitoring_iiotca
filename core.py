@@ -1,3 +1,4 @@
+import csv
 import json
 import random
 import time
@@ -7,7 +8,7 @@ from firebase import firebase
 FEVER_START = 38.0
 FEVER_LIMIT = 10
 fever_continue = False
-fever_count = 0
+nonfever_count = 0
 firebase = firebase.FirebaseApplication(
     'https://iiotca-temp.firebaseio.com', None)
 
@@ -17,45 +18,59 @@ def read_temperature():
     return temperature
 
 
-def insert_firebase(event):
+def insert_to_firebase(event):
     time = time_milli()
     data = json.dumps({
         'time': time,
         'event': event
     })
-    # firebase.child("events").push(data)
     firebase.post('/events', data)
-    print('posted event to fb')
+    print('posted event to fb {}'.format(data))
 
 
-def handle_fever(temperature, fever_continue, fever_count):
+def insert_to_db(temperature, event):
+    time = time_milli()
+    with open('db.csv', 'a') as db_file:
+        writer = csv.writer(db_file, delimiter=",")
+        writer.writerow([time, temperature, event])
+        print('wrote to db: {} {} {}'.format(time, temperature, event))
+
+
+def handle_fever(temperature, fever_continue, nonfever_count):
+    event = "NO event"
+    # temp bigger than 38 and fever_continue is false?
     if temperature >= FEVER_START and not fever_continue:
-        print("FEVER_START_EVENT")
-        insert_firebase("FEVER_START_EVENT")
+        event = "FEVER_START_EVENT"
+        insert_to_firebase(event)
+        insert_to_db(temperature, event)
         fever_continue = True
         nonfever_count = 0
         return
 
-    if fever_continue and nonfever_count == FEVER_LIMIT:
-        insert_firebase("FEVER_END_EVENT")
-        print("FEVER_END_EVENT")
+    # fever_continue is true and nonfever reached max of 10 times
+    elif fever_continue and nonfever_count == FEVER_LIMIT:
+        event = "FEVER_END_EVENT"
+        insert_to_firebase(event)
+        insert_to_db(temperature, event)
         fever_continue = False
         nonfever_count = 0
         return
 
-    if fever_continue and temperature < FEVER_START:
+    elif fever_continue and temperature < FEVER_START:
+        insert_to_db(temperature, event)
         nonfever_count += 1
-        print("increased nonfever count: " + nonfever_count)
-    if fever_continue and temperature > FEVER_START:
-        print("reset nonfever count")
+    elif fever_continue and temperature > FEVER_START:
+        insert_to_db(temperature, event)
         nonfever_count = 0
+    else:
+        insert_to_db(temperature, event)
 
 
 def monitor_temperature():
     count = 25
     while count:
         temperature = read_temperature()
-        handle_fever(temperature, fever_continue, fever_count)
+        handle_fever(temperature, fever_continue, nonfever_count)
         count -= 1
         print(temperature)
         print(time.time())
