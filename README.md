@@ -11,7 +11,7 @@ The main task of this project is to monitor temperature, asses if a "fever event
 
 **Entities involved:** core module, database file
 
-Due to the lack of a sensor, I used random library from python in order to generate int numbers from 33 to 41. The logic from core.py is able to query temperature information and store it into the database.
+Due to the lack of a sensor, I used random library from python in order to generate int numbers from 33 to 41. The logic from core.py is able to query temperature information and stored it into the database.
 
 For the local database I've used a simple .csv file. Temperature was read every 30 seconds for almost a day, and store into the local database.
 
