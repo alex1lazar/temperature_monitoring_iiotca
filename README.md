@@ -39,9 +39,9 @@ In order to create a local server, I used Flask. It runs on port 5051, as asked.
 
 Resources used for help:
 
--- https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask
--- https://realpython.com/python-csv/
--- https://docs.python.org/3/library/csv.html
--- further advice from colleagues, friends
+- https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask
+- https://realpython.com/python-csv/
+- https://docs.python.org/3/library/csv.html
+- further advice from colleagues, friends
 
 
