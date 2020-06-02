@@ -67,14 +67,14 @@ def handle_fever(temperature, fever_continue, nonfever_count):
 
 
 def monitor_temperature():
-    count = 25
-    while count:
+    count = 0
+    while count < 3600 * 24:
         temperature = read_temperature()
         handle_fever(temperature, fever_continue, nonfever_count)
-        count -= 1
+        count += 1
         print(temperature)
         print(time.time())
-        time.sleep(5)
+        time.sleep(30)
 
 
 def time_milli():
