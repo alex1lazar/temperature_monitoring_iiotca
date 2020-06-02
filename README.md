@@ -9,7 +9,7 @@ The main task of this project is to monitor temperature, asses if a "fever event
 
 ### Temperature monitoring
 
-**Entities involved:** core module, database file
+**Entities involved:** core module, database file, plot ipynb file
 
 Due to the lack of a sensor, I used random library from python in order to generate int numbers from 33 to 41. The logic from core.py is able to query temperature information and store it into the database.
 
@@ -26,6 +26,8 @@ For the local database I've used a simple .csv file. Temperature was read every 
 to Plotly operation is stopped.
 
 **Only** START and END events were posted to Firebase. Strangely, no sequence of 10 consecutive temperature without fever, after its start, was met. Therefore, no "FEVER_END_EVENT" is present either in database file or Firebase.
+
+Because I've generated only *ints* between 33 and 41, there might be a *problem* and that's why I haven't encountered any END_EVENT.
 
 ### Temperature data API
 
