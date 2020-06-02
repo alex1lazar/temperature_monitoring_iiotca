@@ -5,10 +5,6 @@ import time
 
 import numpy as np
 import pandas as pd
-import plotly
-import plotly.figure_factory as FF
-import plotly.graph_objs as go
-from chart_studio.plotly import iplot, plot
 from firebase import firebase
 
 FEVER_START = 38.0
@@ -47,12 +43,6 @@ def insert_to_db(temperature, event):
         writer = csv.writer(db_file, delimiter=",")
         writer.writerow([time, temperature, event])
         print('wrote to db: {} {} {}'.format(time, temperature, event))
-
-
-def plot_temperature():
-    df = pd.read_csv('db.csv')
-    sample_data = FF.create_table(df.head())
-    iplot(sample_data, filename="sample_data")
 
 
 def handle_fever(temperature, fever_continue, nonfever_count):
