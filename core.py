@@ -3,6 +3,12 @@ import json
 import random
 import time
 
+import numpy as np
+import pandas as pd
+import plotly
+import plotly.figure_factory as FF
+import plotly.graph_objs as go
+from chart_studio.plotly import iplot, plot
 from firebase import firebase
 
 FEVER_START = 38.0
@@ -11,6 +17,13 @@ fever_continue = False
 nonfever_count = 0
 firebase = firebase.FirebaseApplication(
     'https://iiotca-temp.firebaseio.com', None)
+
+
+def strip_blanks():  # every other row was a blank one, this function removes blank rows
+    df = pd.read_csv('db.csv')
+    modifiedDF = df.dropna()
+    # and it has created a new db file modified
+    modifiedDF.to_csv('db_mod.csv', index=False)
 
 
 def read_temperature():
@@ -34,6 +47,12 @@ def insert_to_db(temperature, event):
         writer = csv.writer(db_file, delimiter=",")
         writer.writerow([time, temperature, event])
         print('wrote to db: {} {} {}'.format(time, temperature, event))
+
+
+def plot_temperature():
+    df = pd.read_csv('db.csv')
+    sample_data = FF.create_table(df.head())
+    iplot(sample_data, filename="sample_data")
 
 
 def handle_fever(temperature, fever_continue, nonfever_count):
@@ -83,7 +102,8 @@ def time_milli():
 
 
 def main():
-    monitor_temperature()
+    strip_blanks()
+    # monitor_temperature()
 
 
 if __name__ == "__main__":
